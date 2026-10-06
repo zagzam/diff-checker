@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>File Diff Checker</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#20304a;font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}button,textarea{font:inherit}button{cursor:pointer}
+.wrap{max-width:1450px;margin:auto;padding:28px 24px 48px}header,.pane-head,.result-head{display:flex;align-items:center;justify-content:space-between;gap:18px}header{margin-bottom:22px}
+.eyebrow{color:#315ddd;text-transform:uppercase;letter-spacing:.13em;font-size:11px;font-weight:800}h1{font-size:clamp(28px,3vw,38px);letter-spacing:-.045em;margin:3px 0}p{margin:0;color:#6c7b93}
+.actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.btn{border:1px solid #d8e1ed;background:white;color:#20304a;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:700;white-space:nowrap}.btn:hover{background:#eff3ff;border-color:#b5c5e9}.btn:focus-visible,.merge:focus-visible{outline:3px solid #a9bbfa;outline-offset:2px}.btn.small{padding:6px 9px;font-size:12px}.btn.primary{background:#315ddd;border-color:#315ddd;color:white}.btn.primary:hover{background:#244bbf}
+.panes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.pane,.result{background:#fff;border:1px solid #dce4ef;border-radius:14px;box-shadow:0 12px 30px #20304a0b;overflow:hidden}.pane.drag{outline:4px solid #cbd8ff;border-color:#315ddd}
+.pane-head{padding:13px 15px;border-bottom:1px solid #e3e9f1}.pane-title{display:flex;align-items:center;gap:9px;min-width:0;font-weight:750}.badge{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#eaf0ff;color:#315ddd;font-size:12px;flex:none}.filename{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.upload{position:relative;overflow:hidden}.upload input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+textarea{display:block;width:100%;height:260px;resize:vertical;border:0;outline:0;padding:16px 18px;color:#20304a;font:13px/1.55 Consolas,"Liberation Mono",monospace;tab-size:2}textarea:focus{box-shadow:inset 0 0 0 2px #b2c3fb}.pane-foot{display:flex;justify-content:space-between;gap:8px;padding:8px 15px;background:#fcfdff;border-top:1px solid #e3e9f1;color:#8796aa;font-size:12px}
+.result{margin-top:20px}.result-head{padding:15px 18px;border-bottom:1px solid #e3e9f1}h2{font-size:17px;margin:0 0 3px}.status{display:flex;align-items:center;gap:8px;color:#687890;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:#9eabc0}.dot.changed{background:#eda13c}.dot.same{background:#30a875}.check{color:#687890;font-size:12px;white-space:nowrap}.check input{accent-color:#315ddd}
+.compare{overflow:auto;max-height:65vh}.grid{min-width:740px}.grid-head,.row{display:grid;grid-template-columns:minmax(0,1fr) 100px minmax(0,1fr)}.grid-head{position:sticky;top:0;z-index:2;background:#f8faff;color:#7a89a0;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #dce4ef}.grid-head>div{padding:8px 12px}.grid-head>div:nth-child(2){text-align:center}
+.row{min-height:25px;border-bottom:1px solid #edf1f7}.line{display:flex;min-width:0;font:12px/1.55 Consolas,"Liberation Mono",monospace}.line.left{border-right:1px solid #dce4ef}.line.right{border-left:1px solid #dce4ef}.line.del{background:#fff0f1}.line.ins{background:#e9f8ef}.line.blank{background:repeating-linear-gradient(135deg,#f9fafd,#f9fafd 7px,#f3f6fa 7px,#f3f6fa 14px)}.num{flex:none;width:43px;text-align:right;padding:3px 8px 3px 2px;color:#9ba8ba;user-select:none}.code{min-width:0;padding:3px 9px;white-space:pre-wrap;overflow-wrap:anywhere}.mark-del{background:#ffcbd1;border-radius:3px}.mark-ins{background:#b8eaca;border-radius:3px}
+.mergebox{display:flex;align-items:center;justify-content:center;gap:4px}.merge{border:1px solid #bfd0f3;background:#eaf0ff;color:#315ddd;border-radius:6px;padding:3px 5px;font-size:11px;font-weight:800;white-space:nowrap}.merge:hover{background:#dce6ff}.collapsed{grid-column:1/-1;text-align:center;background:#fafbfe;color:#8997ac;padding:5px;font:11px Consolas,monospace}.empty{text-align:center;padding:42px 20px;color:#718098}.empty strong{display:block;color:#20304a;font-size:16px;margin-bottom:5px}.empty-icon{display:grid;place-items:center;width:43px;height:43px;margin:0 auto 13px;border-radius:12px;background:#eaf0ff;color:#315ddd;font-weight:800}.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,15px);background:#263652;color:#fff;padding:10px 15px;border-radius:9px;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 10px 22px #0003}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:780px){.wrap{padding:18px 12px 32px}header,.result-head{align-items:flex-start;flex-direction:column}.panes{grid-template-columns:1fr}textarea{height:190px}}
+/* Dark neon workspace */
+:root{color-scheme:dark;--bg:#080d17;--panel:#101827;--panel2:#0c1422;--line:#27354b;--text:#e9f0ff;--muted:#8b9ab3;--cyan:#68f1df;--violet:#a685ff}
+html{scroll-behavior:smooth}body{min-height:100vh;background:radial-gradient(ellipse 75% 45% at 50% -20%,#152b4d 0%,transparent 72%),radial-gradient(ellipse 30% 35% at 100% 16%,#21174766 0%,transparent 80%),var(--bg);color:var(--text);font:14px/1.5 "Space Grotesk",Bahnschrift,"Segoe UI",sans-serif}
+.wrap{max-width:1580px;padding:34px 32px 60px}header{margin-bottom:28px;align-items:flex-end}.eyebrow,.section-kicker{display:flex;align-items:center;gap:8px;color:var(--cyan);font-size:11px;font-weight:700;letter-spacing:.17em}.live-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}h1{font-size:clamp(34px,4.5vw,58px);line-height:1.05;margin:10px 0 9px;font-weight:700}h1 em{font-style:normal;color:var(--cyan);text-shadow:0 0 35px #68f1df55}p{color:var(--muted)}
+.btn{background:#152135;border-color:#344662;color:#dce8fa;border-radius:8px;font-family:"Space Grotesk",Bahnschrift,sans-serif;transition:background .15s,border-color .15s,box-shadow .15s}.btn:hover{background:#1b2c45;border-color:var(--cyan);box-shadow:0 0 0 1px #68f1df28}.btn.primary{color:#06151a;background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 22px #68f1df27}.btn.primary:hover{background:#a4fff1;border-color:#a4fff1}.btn:focus-visible,.merge:focus-visible{outline:2px solid var(--cyan)}
+.result,.source-pane{border:1px solid var(--line);background:linear-gradient(145deg,#111c2d,#0b1320 70%);box-shadow:0 20px 60px #0005,0 0 0 1px #85a8ee06;border-radius:14px;overflow:hidden}.result{margin-top:0}.result-head{padding:19px 22px;border-bottom:1px solid var(--line);background:#111b2b}.result-head h2,.source-intro h2{font-size:20px;letter-spacing:-.035em;margin:3px 0 4px}.status{color:var(--muted);font-size:12px}.dot{background:#7888a2}.dot.changed{background:#fcb96d;box-shadow:0 0 10px #fcb96d99}.dot.same{background:var(--cyan);box-shadow:0 0 10px #68f1df88}.check{color:var(--muted)}.check input{accent-color:var(--cyan)}
+.upload-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-bottom:1px solid var(--line);background:#0d1726}.upload-zone{display:flex;align-items:center;gap:13px;min-width:0;padding:15px 19px;border:0;border-radius:0;box-shadow:none;background:transparent;transition:background .15s,box-shadow .15s}.upload-zone:first-child{border-right:1px solid var(--line)}.upload-zone:hover,.upload-zone.drag{background:#17263a;box-shadow:inset 0 0 0 1px #68f1df6b;outline:0}.zone-icon{display:grid;place-items:center;flex:none;width:37px;height:37px;border:1px solid #36566b;border-radius:10px;background:#112d3c;color:var(--cyan);font:700 14px "JetBrains Mono",Consolas,monospace;box-shadow:inset 0 0 14px #68f1df13}.upload-zone:nth-child(2) .zone-icon{color:var(--violet);background:#231e40;border-color:#5d4b8d;box-shadow:inset 0 0 14px #a685ff23}.zone-copy{display:flex;flex-direction:column;min-width:0;flex:1}.zone-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.zone-copy span{color:var(--muted);font-size:11px}.upload-zone .btn{flex:none}
+.compare{position:relative;height:clamp(520px,70vh,900px);max-height:none;background:#0b1320;scrollbar-color:#354b64 #101b2b;scrollbar-width:thin}.compare.drop-left:before,.compare.drop-right:after{content:"DROP FILE HERE";position:absolute;z-index:5;top:0;bottom:0;width:50%;display:grid;place-items:center;background:#0b383bce;color:var(--cyan);font:700 20px "Space Grotesk",sans-serif;letter-spacing:.12em;pointer-events:none;border:2px dashed var(--cyan)}.compare.drop-left:before{left:0}.compare.drop-right:after{right:0}.compare-foot{display:flex;justify-content:space-between;gap:16px;padding:10px 18px;border-top:1px solid var(--line);color:#6f819b;font:10px "JetBrains Mono",Consolas,monospace;letter-spacing:.02em}.foot-spark{color:var(--cyan)}
+.grid-head{background:#142239;color:#9aaecb;border-color:#2b3c56}.grid-head>div{padding:10px 13px}.grid-head>div:first-child{color:var(--cyan)}.grid-head>div:last-child{color:var(--violet)}.row{border-color:#1e2d42;min-height:27px}.row:hover .line:not(.del):not(.ins){background:#142034}.line{color:#d6e3f6;font:12px/1.6 "JetBrains Mono","Cascadia Code",Consolas,monospace}.line.left{border-color:#253751}.line.right{border-color:#253751}.line.del{background:#432337a8;color:#ffd3dd}.line.ins{background:#153d3a9e;color:#c5fff0}.line.blank{background:repeating-linear-gradient(135deg,#101c2c,#101c2c 8px,#132137 8px,#132137 16px)}.num{color:#6d819e;background:#14203577}.code{padding:4px 10px}.mark-del{background:#a84165;color:#fff1f5}.mark-ins{background:#0b756d;color:#e9fffa}.mergebox{background:#0c1829}.merge{background:#1b3045;border-color:#357f83;color:var(--cyan);font:700 10px "JetBrains Mono",Consolas,monospace}.merge:hover{background:#24545a}.collapsed{background:#111e30;color:#8295ad;border-color:var(--line)}.empty{display:flex;align-items:center;justify-content:center;flex-direction:column;height:100%;padding:40px;color:var(--muted)}.empty strong{color:var(--text);font-size:19px}.empty-icon{width:60px;height:60px;border-radius:16px;background:#12333e;color:var(--cyan);box-shadow:0 0 35px #68f1df26;font:700 16px "JetBrains Mono",monospace}
+.source-section{margin-top:30px}.source-intro{margin-bottom:13px}.source-intro h2{font-size:22px;margin-top:5px}.source-intro p{font-size:12px}.panes{gap:16px}.source-pane{min-width:0}.source-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);background:#121e30}.source-head>div{display:flex;align-items:center;gap:12px}.source-label{color:var(--cyan);font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em}.source-pane:nth-child(2) .source-label{color:var(--violet)}.source-count{color:var(--muted);font:11px "JetBrains Mono",monospace}textarea{height:300px;background:#0a1321;color:#dceaff;font:12px/1.65 "JetBrains Mono","Cascadia Code",Consolas,monospace;caret-color:var(--cyan);padding:16px 18px}textarea:focus{box-shadow:inset 0 0 0 1px var(--cyan)}textarea::placeholder{color:#62758f}.toast{background:#172c3a;color:var(--cyan);border:1px solid #357f83}
+@media(max-width:780px){.wrap{padding:20px 12px 40px}header,.result-head{align-items:flex-start;flex-direction:column}.upload-row{grid-template-columns:1fr}.upload-zone:first-child{border-right:0;border-bottom:1px solid var(--line)}.compare{height:62vh;min-height:430px}.compare-foot{flex-direction:column}.panes{grid-template-columns:1fr}textarea{height:220px}}
+</style></head><body><main class="wrap">
+<header><div><div class="eyebrow"><span class="live-dot"></span> DIFF LAB / LOCAL FILES</div><h1>See every <em>change.</em></h1><p>Drop two files into the workspace. Review and merge their text instantly.</p></div><div class="actions"><button class="btn" id="swap" type="button">⇄ Swap</button><button class="btn" id="clear" type="button">Clear</button></div></header>
+<section class="result" aria-label="Comparison workspace">
+ <div class="result-head"><div><div class="section-kicker">01 / COMPARE</div><h2>Diff workspace</h2><div class="status" role="status" aria-live="polite"><span class="dot" id="dot"></span><span id="status">Drop files on both sides or edit the source below.</span></div></div><div class="actions"><label class="check"><input type="checkbox" id="showAll"> Show all lines</label><button class="btn primary" id="copyLeft" type="button">Copy all L → R</button><button class="btn" id="copyRight" type="button">Copy all R → L</button></div></div>
+ <div class="upload-row" aria-label="File drop zones">
+  <div class="upload-zone pane" id="leftPane"><div class="zone-icon">L</div><div class="zone-copy"><strong id="leftName">Left side</strong><span>Drop a file here or browse</span></div><label class="btn small upload">Choose file<input type="file" id="leftFile" aria-label="Open left file"></label></div>
+  <div class="upload-zone pane" id="rightPane"><div class="zone-icon">R</div><div class="zone-copy"><strong id="rightName">Right side</strong><span>Drop a file here or browse</span></div><label class="btn small upload">Choose file<input type="file" id="rightFile" aria-label="Open right file"></label></div>
+ </div>
+ <div class="compare" id="compare"></div><div class="compare-foot"><span>Drop onto either half of the comparison to replace that side</span><span>LOCAL ONLY <span class="foot-spark">✦</span> FILES STAY IN YOUR BROWSER</span></div>
+</section>
+<section class="source-section" aria-label="Original file text">
+ <div class="source-intro"><div><div class="section-kicker">02 / SOURCE</div><h2>Original text</h2><p>Edit either side here. The comparison above updates as you type.</p></div></div>
+ <div class="panes">
+  <div class="source-pane"><div class="source-head"><div><span class="source-label">LEFT / ORIGINAL</span><span class="source-count" id="leftCount">0 lines</span></div><button class="btn small" id="leftDownload" type="button">↓ Download</button></div><textarea id="leftInput" spellcheck="false" aria-label="Left text" placeholder="Paste or type left text here…"></textarea></div>
+  <div class="source-pane"><div class="source-head"><div><span class="source-label">RIGHT / ORIGINAL</span><span class="source-count" id="rightCount">0 lines</span></div><button class="btn small" id="rightDownload" type="button">↓ Download</button></div><textarea id="rightInput" spellcheck="false" aria-label="Right text" placeholder="Paste or type right text here…"></textarea></div>
+ </div>
+</section>
+</main><div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id),left=$('leftInput'),right=$('rightInput'),names={left:'Left side',right:'Right side'};let timer,toastTimer;
+const split=s=>s.replace(/\r\n?/g,'\n').split('\n');
+function notice(s){const t=$('toast');t.textContent=s;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2300)}
+function setName(side,name){names[side]=name;$(side+'Name').textContent=name}
+function count(){for(const side of ['left','right']){const value=$(side+'Input').value,n=value?split(value).length:0;$(side+'Count').textContent=n+' line'+(n===1?'':'s')}}
+function schedule(){count();clearTimeout(timer);timer=setTimeout(render,100)}
+function el(tag,cls,text){const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x}
+// Longest common subsequence by line. Large middle sections become one replacement block.
+function diff(a,b){
+ let start=0;while(start<a.length&&start<b.length&&a[start]===b[start])start++;
+ let ae=a.length,be=b.length;while(ae>start&&be>start&&a[ae-1]===b[be-1]){ae--;be--}
+ const out=[];for(let i=0;i<start;i++)out.push(['=',a[i]]);
+ const n=ae-start,m=be-start;
+ if(n*m<=650000){
+  const w=m+1,dp=new Uint32Array((n+1)*w);
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--){const p=i*w+j;dp[p]=a[start+i]===b[start+j]?dp[p+w+1]+1:Math.max(dp[p+w],dp[p+1])}
+  let i=0,j=0;while(i<n||j<m){
+   if(i<n&&j<m&&a[start+i]===b[start+j]){out.push(['=',a[start+i]]);i++;j++}
+   else if(i<n&&(j===m||dp[(i+1)*w+j]>=dp[i*w+j+1]))out.push(['-',a[start+i++]]);
+   else out.push(['+',b[start+j++]])
+  }
+ }else{for(let i=start;i<ae;i++)out.push(['-',a[i]]);for(let j=start;j<be;j++)out.push(['+',b[j]])}
+ for(let i=ae;i<a.length;i++)out.push(['=',a[i]]);return out
+}
+function group(ops){
+ const groups=[];let li=0,ri=0,change=null;
+ const flush=()=>{if(change){groups.push(change);change=null}};
+ for(const [kind,value] of ops){
+  if(kind==='='){flush();const prev=groups.at(-1);if(prev?.type==='equal')prev.lines.push(value);else groups.push({type:'equal',li,ri,lines:[value]});li++;ri++}
+  else{if(!change)change={type:'change',li,ri,left:[],right:[]};if(kind==='-'){change.left.push(value);li++}else{change.right.push(value);ri++}}
+ }flush();return groups
+}
+function mark(node,text,other,kind){
+ if(other===undefined||text===other){node.textContent=text||' ';return}
+ let p=0,s=0;while(p<text.length&&p<other.length&&text[p]===other[p])p++;
+ while(s<text.length-p&&s<other.length-p&&text[text.length-1-s]===other[other.length-1-s])s++;
+ if(p)node.append(document.createTextNode(text.slice(0,p)));
+ const middle=text.slice(p,text.length-s);if(middle)node.append(el('span','mark-'+kind,middle));
+ if(s)node.append(document.createTextNode(text.slice(text.length-s)));if(!text)node.textContent=' '
+}
+function cell(side,num,text,kind,other){
+ const x=el('div','line '+side+(text===undefined?' blank':kind?' '+kind:''));x.append(el('span','num',text===undefined?'':String(num)));
+ const c=el('span','code');if(text!==undefined)mark(c,text,other,kind);x.append(c);return x
+}
+function merge(h,destination){
+ const target=destination==='right'?right:left,source=destination==='right'?h.left:h.right;
+ const at=destination==='right'?h.ri:h.li,remove=destination==='right'?h.right.length:h.left.length;
+ const lines=split(target.value);lines.splice(at,remove,...source);target.value=lines.join('\n');schedule();target.focus();notice('Merged this change into the '+destination+' side.')
+}
+function render(){
+ count();const box=$('compare');box.replaceChildren();
+ if(!left.value&&!right.value){$('dot').className='dot';$('status').textContent='Drop files on both sides or edit the text below.';const e=el('div','empty');e.append(el('div','empty-icon','</>'),el('strong','','Your diff starts here'),document.createTextNode('Drop a file onto either side above, or paste text into the panels below.'));box.append(e);return}
+ const groups=group(diff(split(left.value),split(right.value))),changed=groups.filter(g=>g.type==='change').length;
+ $('dot').className='dot '+(changed?'changed':'same');$('status').textContent=changed?changed+' changed block'+(changed===1?'':'s')+' found. Use the arrows beside a block to merge it.':'Both sides match.';
+ const grid=el('div','grid'),head=el('div','grid-head');head.append(el('div','',names.left),el('div','','Merge'),el('div','',names.right));grid.append(head);
+ function row(li,lv,ri,rv,h,first){
+  const r=el('div','row'),mid=el('div','mergebox');r.append(cell('left',li,lv,h?'del':'',rv));
+  if(first)for(const [label,dest,title] of [['L → R','right','Copy this left change to the right'],['R → L','left','Copy this right change to the left']]){const b=el('button','merge',label);b.type='button';b.title=title;b.addEventListener('click',()=>merge(h,dest));mid.append(b)}
+  r.append(mid,cell('right',ri,rv,h?'ins':'',lv));grid.append(r)
+ }
+ for(const g of groups){
+  if(g.type==='equal'){
+   const n=g.lines.length,ids=$('showAll').checked||n<=7?Array.from({length:n},(_,i)=>i):[0,1,2,n-3,n-2,n-1];
+   ids.forEach((i,k)=>{if(k&&i>ids[k-1]+1)grid.append(el('div','collapsed','⋯ '+(i-ids[k-1]-1)+' unchanged lines ⋯'));row(g.li+i+1,g.lines[i],g.ri+i+1,g.lines[i],null,false)})
+  }else for(let i=0;i<Math.max(g.left.length,g.right.length);i++)row(g.li+i+1,g.left[i],g.ri+i+1,g.right[i],g,i===0)
+ }box.append(grid)
+}
+async function load(file,side){if(!file)return;try{$(side+'Input').value=(await file.text()).replace(/\r\n?/g,'\n');setName(side,file.name);schedule();notice(file.name+' loaded on the '+side+'.')}catch{notice('Could not read that file.')}}
+for(const side of ['left','right']){
+ const pane=$(side+'Pane'),input=$(side+'Input'),file=$(side+'File');
+ file.addEventListener('change',()=>{load(file.files?.[0],side);file.value=''});
+ pane.addEventListener('dragenter',e=>{e.preventDefault();pane.classList.add('drag')});
+ pane.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';pane.classList.add('drag')});
+ pane.addEventListener('dragleave',e=>{if(!pane.contains(e.relatedTarget))pane.classList.remove('drag')});
+ pane.addEventListener('drop',e=>{e.preventDefault();pane.classList.remove('drag');load(e.dataTransfer.files?.[0],side)});
+ input.addEventListener('input',schedule);
+ input.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();input.setRangeText('  ',input.selectionStart,input.selectionEnd,'end');schedule()}});
+ $(side+'Download').addEventListener('click',()=>{const blob=new Blob([input.value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=names[side].includes('.')?names[side]:side+'-merged.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)})
+}
+const comparison=$('compare');
+function dropSide(e){const rect=comparison.getBoundingClientRect();return e.clientX-rect.left+comparison.scrollLeft<comparison.scrollWidth/2?'left':'right'}
+comparison.addEventListener('dragover',e=>{if(!e.dataTransfer.types.includes('Files'))return;e.preventDefault();e.dataTransfer.dropEffect='copy';comparison.classList.toggle('drop-left',dropSide(e)==='left');comparison.classList.toggle('drop-right',dropSide(e)==='right')});
+comparison.addEventListener('dragleave',e=>{if(!comparison.contains(e.relatedTarget))comparison.classList.remove('drop-left','drop-right')});
+comparison.addEventListener('drop',e=>{e.preventDefault();const side=dropSide(e);comparison.classList.remove('drop-left','drop-right');load(e.dataTransfer.files?.[0],side)});
+$('showAll').addEventListener('change',render);
+$('swap').addEventListener('click',()=>{[left.value,right.value]=[right.value,left.value];const n=names.left;setName('left',names.right);setName('right',n);schedule()});
+$('clear').addEventListener('click',()=>{left.value='';right.value='';setName('left','Left side');setName('right','Right side');render()});
+$('copyLeft').addEventListener('click',()=>{right.value=left.value;schedule();notice('Copied all left text to the right.')});
+$('copyRight').addEventListener('click',()=>{left.value=right.value;schedule();notice('Copied all right text to the left.')});
+render()
+})();
+</script></body></html>
