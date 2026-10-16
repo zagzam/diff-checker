@@ -26,21 +26,21 @@ html{scroll-behavior:smooth}body{min-height:100vh;background:radial-gradient(ell
 .source-section{margin-top:30px}.source-intro{margin-bottom:13px}.source-intro h2{font-size:22px;margin-top:5px}.source-intro p{font-size:12px}.panes{gap:16px}.source-pane{min-width:0}.source-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);background:#121e30}.source-head>div{display:flex;align-items:center;gap:12px}.source-label{color:var(--cyan);font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em}.source-pane:nth-child(2) .source-label{color:var(--violet)}.source-count{color:var(--muted);font:11px "JetBrains Mono",monospace}textarea{height:300px;background:#0a1321;color:#dceaff;font:12px/1.65 "JetBrains Mono","Cascadia Code",Consolas,monospace;caret-color:var(--cyan);padding:16px 18px}textarea:focus{box-shadow:inset 0 0 0 1px var(--cyan)}textarea::placeholder{color:#62758f}.toast{background:#172c3a;color:var(--cyan);border:1px solid #357f83}
 @media(max-width:780px){.wrap{padding:20px 12px 40px}header,.result-head{align-items:flex-start;flex-direction:column}.upload-row{grid-template-columns:1fr}.upload-zone:first-child{border-right:0;border-bottom:1px solid var(--line)}.compare{height:62vh;min-height:430px}.compare-foot{flex-direction:column}.panes{grid-template-columns:1fr}textarea{height:220px}}
 </style></head><body><main class="wrap">
-<header><div><div class="eyebrow"><span class="live-dot"></span> DIFF LAB / LOCAL FILES</div><h1>See every <em>change.</em></h1><p>Drop two files into the workspace. Review and merge their text instantly.</p></div><div class="actions"><button class="btn" id="swap" type="button">⇄ Swap</button><button class="btn" id="clear" type="button">Clear</button></div></header>
-<section class="result" aria-label="Comparison workspace">
- <div class="result-head"><div><div class="section-kicker">01 / COMPARE</div><h2>Diff workspace</h2><div class="status" role="status" aria-live="polite"><span class="dot" id="dot"></span><span id="status">Drop files on both sides or edit the source below.</span></div></div><div class="actions"><label class="check"><input type="checkbox" id="showAll"> Show all lines</label><button class="btn primary" id="copyLeft" type="button">Copy all L → R</button><button class="btn" id="copyRight" type="button">Copy all R → L</button></div></div>
- <div class="upload-row" aria-label="File drop zones">
-  <div class="upload-zone pane" id="leftPane"><div class="zone-icon">L</div><div class="zone-copy"><strong id="leftName">Left side</strong><span>Drop a file here or browse</span></div><label class="btn small upload">Choose file<input type="file" id="leftFile" aria-label="Open left file"></label></div>
-  <div class="upload-zone pane" id="rightPane"><div class="zone-icon">R</div><div class="zone-copy"><strong id="rightName">Right side</strong><span>Drop a file here or browse</span></div><label class="btn small upload">Choose file<input type="file" id="rightFile" aria-label="Open right file"></label></div>
- </div>
- <div class="compare" id="compare"></div><div class="compare-foot"><span>Drop onto either half of the comparison to replace that side</span><span>LOCAL ONLY <span class="foot-spark">✦</span> FILES STAY IN YOUR BROWSER</span></div>
-</section>
-<section class="source-section" aria-label="Original file text">
- <div class="source-intro"><div><div class="section-kicker">02 / SOURCE</div><h2>Original text</h2><p>Edit either side here. The comparison above updates as you type.</p></div></div>
+<header><div><div class="eyebrow"><span class="live-dot"></span> DIFF LAB / TEXT &amp; FILES</div><h1>See every <em>change.</em></h1><p>Paste text on each side or load files. Review and merge changes instantly.</p></div><div class="actions"><button class="btn" id="swap" type="button">⇄ Swap</button><button class="btn" id="clear" type="button">Clear</button></div></header>
+<section class="source-section" aria-label="Text to compare">
+ <div class="source-intro"><div><div class="section-kicker">01 / INPUT</div><h2>Paste or type your text</h2><p>Enter or paste text into either panel. The comparison updates as you type; you can also load files below.</p></div></div>
  <div class="panes">
   <div class="source-pane"><div class="source-head"><div><span class="source-label">LEFT / ORIGINAL</span><span class="source-count" id="leftCount">0 lines</span></div><button class="btn small" id="leftDownload" type="button">↓ Download</button></div><textarea id="leftInput" spellcheck="false" aria-label="Left text" placeholder="Paste or type left text here…"></textarea></div>
   <div class="source-pane"><div class="source-head"><div><span class="source-label">RIGHT / ORIGINAL</span><span class="source-count" id="rightCount">0 lines</span></div><button class="btn small" id="rightDownload" type="button">↓ Download</button></div><textarea id="rightInput" spellcheck="false" aria-label="Right text" placeholder="Paste or type right text here…"></textarea></div>
  </div>
+</section>
+<section class="result" aria-label="Comparison workspace">
+ <div class="result-head"><div><div class="section-kicker">02 / COMPARE</div><h2>Diff workspace</h2><div class="status" role="status" aria-live="polite"><span class="dot" id="dot"></span><span id="status">Paste text above or load files on either side.</span></div></div><div class="actions"><label class="check"><input type="checkbox" id="showAll"> Show all lines</label><button class="btn primary" id="copyLeft" type="button">Copy all L → R</button><button class="btn" id="copyRight" type="button">Copy all R → L</button></div></div>
+ <div class="upload-row" aria-label="File drop zones">
+  <div class="upload-zone pane" id="leftPane"><div class="zone-icon">L</div><div class="zone-copy"><strong id="leftName">Left side</strong><span>Drop a file here or browse</span></div><label class="btn small upload">Choose file<input type="file" id="leftFile" aria-label="Open left file"></label></div>
+  <div class="upload-zone pane" id="rightPane"><div class="zone-icon">R</div><div class="zone-copy"><strong id="rightName">Right side</strong><span>Drop a file here or browse</span></div><label class="btn small upload">Choose file<input type="file" id="rightFile" aria-label="Open right file"></label></div>
+ </div>
+ <div class="compare" id="compare"></div><div class="compare-foot"><span>Drop onto either half of the comparison to replace that side</span><span>LOCAL ONLY <span class="foot-spark">✦</span> TEXT &amp; FILES STAY IN YOUR BROWSER</span></div>
 </section>
 </main><div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -97,7 +97,7 @@ function merge(h,destination){
 }
 function render(){
  count();const box=$('compare');box.replaceChildren();
- if(!left.value&&!right.value){$('dot').className='dot';$('status').textContent='Drop files on both sides or edit the text below.';const e=el('div','empty');e.append(el('div','empty-icon','</>'),el('strong','','Your diff starts here'),document.createTextNode('Drop a file onto either side above, or paste text into the panels below.'));box.append(e);return}
+ if(!left.value&&!right.value){$('dot').className='dot';$('status').textContent='Paste text above or load files on either side.';const e=el('div','empty');e.append(el('div','empty-icon','</>'),el('strong','','Your diff starts here'),document.createTextNode('Paste or type text in either panel above, or load files from the controls here.'));box.append(e);return}
  const groups=group(diff(split(left.value),split(right.value))),changed=groups.filter(g=>g.type==='change').length;
  $('dot').className='dot '+(changed?'changed':'same');$('status').textContent=changed?changed+' changed block'+(changed===1?'':'s')+' found. Use the arrows beside a block to merge it.':'Both sides match.';
  const grid=el('div','grid'),head=el('div','grid-head');head.append(el('div','',names.left),el('div','','Merge'),el('div','',names.right));grid.append(head);
